@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>単語テスト</title>
+  </head>
+  <body>
+    <button onclick="playRandomSound()">再生</button>
+    <button onclick="replaySound()">もう一度</button>
+    <button onclick="markAsIncorrect()">間違った</button>
+    <button onclick="resetSounds()">リセット</button>
+    <input type="checkbox" id="playFromIncorrectList"> 間違えたもの <p id="playingNow">再生中の単語：None</p>
+    <p id="playedCount">再生単語数：0 / 0</p>
+    <p id="incorrectCount">間違えた単語数：0</p>
+    <script>
+      let playedSounds = [];
+      let lastPlayedSound = null;
+      let incorrectSounds = [];
+
+      const sounds1 = Array.from({ length: 34 }, (_, i) => `1-${String(i + 1).padStart(2, '0')}.mp3`);
+      const sounds2 = Array.from({ length: 41 }, (_, i) => `2-${String(i + 1).padStart(2, '0')}.mp3`);
+      const allSounds = sounds1.concat(sounds2);
+
+      function updateCounters() {
+        document.getElementById('playedCount').textContent = `再生した単語：${playedSounds.length} / ${allSounds.length}`;
+        document.getElementById('incorrectCount').textContent = `間違えた単語：${incorrectSounds.length}`;
+      }
+
+      function playRandomSound() {
+        let availableSounds;
+
+        if (document.getElementById('playFromIncorrectList').checked) {
+          availableSounds = incorrectSounds;
+        } else {
+          availableSounds = allSounds.filter(sound => !playedSounds.includes(sound));
+        }
+
+        if (!availableSounds.length) {
+          alert('間違えた単語はありません');
+          return;
+        }
+
+        const randomSound = availableSounds[Math.floor(Math.random() * availableSounds.length)];
+        playSound(randomSound);
+        playedSounds.push(randomSound);
+        lastPlayedSound = randomSound;
+
+        if (document.getElementById('playFromIncorrectList').checked) {
+          incorrectSounds = incorrectSounds.filter(sound => sound !== randomSound);
+          saveIncorrectSounds();
+        }
+
+        updateCounters();
+      }
+
+      function replaySound() {
+        if (lastPlayedSound) {
+          playSound(lastPlayedSound);
+        } else {
+          alert('まだ再生されていません');
+        }
+      }
+
+      function playSound(filename) {
+        const audio = new Audio(`/sounds/${filename}`);
+        audio.play();
+
+        document.getElementById('playingNow').textContent = `再生中の単語：${filename}`;
+      }
+
+      function resetSounds() {
+        playedSounds = [];
+        lastPlayedSound = null;
+        incorrectSounds = [];
+        document.getElementById('playingNow').textContent = '再生中の単語: None';
+        updateCounters();
+      }
+
+      function markAsIncorrect() {
+        if (lastPlayedSound && !incorrectSounds.includes(lastPlayedSound)) {
+          incorrectSounds.push(lastPlayedSound);
+          saveIncorrectSounds();
+        }
+        updateCounters();
+      }
+
+      function saveIncorrectSounds() {
+        console.log('Saving incorrect sounds:', incorrectSounds);
+      }
+
+      function loadIncorrectSounds() {
+        console.log('Loading incorrect sounds...');
+        updateCounters();
+      }
+
+      loadIncorrectSounds();
+
+    </script>
+  </body>
+</html>
