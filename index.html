@@ -14,7 +14,8 @@
       <option value="5">第5課</option>
       <option value="6">第6課</option>
       <option value="7">第7課</option>
-    </select><br />
+    </select><br /><br />
+    <button id="playAllButton" onclick="togglePlayAll()">通し再生</button><br /><br />
     <button onclick="playRandomSound()">再生</button>
     <button onclick="replaySound()">もう一度</button>
     <button onclick="markAsIncorrect()">間違った</button>
@@ -28,6 +29,8 @@
       let incorrectSounds = [];
       let currentLesson = '';
       let allSounds = [];
+      let playAllInterval = null;
+      let soundIndex = 0;
 
       const lessonFileCounts = {
         '2': { '1': 34, '2': 41 },
@@ -56,6 +59,40 @@
           allSounds = [];
         }
         updateCounters();
+      }
+
+      function playAllSounds() {
+        if (allSounds.length === 0) {
+          alert('再生する単語がありません');
+          return;
+        }
+        playSound(allSounds[soundIndex]);
+        document.getElementById('playAllButton').textContent = 'ストップする';
+        document.getElementById('playAllButton').onclick = stopPlayingAll;
+
+        playAllInterval = setInterval(() => {
+          soundIndex++;
+          if (soundIndex >= allSounds.length) {
+            stopPlayingAll();
+            return;
+          }
+          playSound(allSounds[soundIndex]);
+        }, 3000);
+      }
+
+      function stopPlayingAll() {
+        clearInterval(playAllInterval);
+        playAllInterval = null;
+        document.getElementById('playAllButton').textContent = '通し再生';
+        document.getElementById('playAllButton').onclick = playAllSounds;
+      }
+
+      function togglePlayAll() {
+        if (playAllInterval) {
+          stopPlayingAll();
+        } else {
+          playAllSounds();
+        }
       }
 
       function updateCounters() {
@@ -109,6 +146,7 @@
         playedSounds = [];
         lastPlayedSound = null;
         incorrectSounds = [];
+        soundIndex = 0;
         document.getElementById('playingNow').textContent = '再生中の単語: None';
         updateCounters();
       }
