@@ -6,6 +6,15 @@
     <title>単語テスト</title>
   </head>
   <body>
+    <select id="lessonSelect" onchange="selectLesson()">
+      <option value="">課を選択</option>
+      <option value="2">第2課</option>
+      <option value="3">第3課</option>
+      <option value="4">第4課</option>
+      <option value="5">第5課</option>
+      <option value="6">第6課</option>
+      <option value="7">第7課</option>
+    </select><br />
     <button onclick="playRandomSound()">再生</button>
     <button onclick="replaySound()">もう一度</button>
     <button onclick="markAsIncorrect()">間違った</button>
@@ -17,10 +26,37 @@
       let playedSounds = [];
       let lastPlayedSound = null;
       let incorrectSounds = [];
+      let currentLesson = '';
+      let allSounds = [];
 
-      const sounds1 = Array.from({ length: 34 }, (_, i) => `1-${String(i + 1).padStart(2, '0')}.mp3`);
-      const sounds2 = Array.from({ length: 41 }, (_, i) => `2-${String(i + 1).padStart(2, '0')}.mp3`);
-      const allSounds = sounds1.concat(sounds2);
+      const lessonFileCounts = {
+        '2': { '1': 34, '2': 41 },
+        '3': { '1': 32, '2': 54 },
+        '4': { '1': 29, '2': 37 },
+        '5': { '1': 29, '2': 54 },
+        '6': { '1': 29, '2': 36 },
+        '7': { '1': 36, '2': 52 },
+      };
+
+      function selectLesson() {
+        currentLesson = document.getElementById('lessonSelect').value;
+        loadSoundsForLesson(currentLesson);
+        resetSounds();
+      }
+
+      function loadSoundsForLesson(lesson) {
+        if (lesson && lessonFileCounts[lesson]) {
+          allSounds = [];
+          for (const prefix in lessonFileCounts[lesson]) {
+            const count = lessonFileCounts[lesson][prefix];
+            const sounds = Array.from({ length: count }, (_, i) => `${prefix}-${String(i + 1).padStart(2, '0')}.mp3`);
+            allSounds = allSounds.concat(sounds.map(sound => `words${lesson}/${sound}`));
+          }
+        } else {
+          allSounds = [];
+        }
+        updateCounters();
+      }
 
       function updateCounters() {
         document.getElementById('playedCount').textContent = `再生した単語：${playedSounds.length} / ${allSounds.length}`;
