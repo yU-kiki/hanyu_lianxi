@@ -179,7 +179,7 @@
       }
 
       function playSound(filename) {
-        const audio = new Audio(`../sounds/${filename}`);
+        const audio = new Audio(`sounds/${filename}`);
         audio.play();
 
         document.getElementById('playingNow').textContent = `再生中の単語：${filename}`;
