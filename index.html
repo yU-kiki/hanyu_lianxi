@@ -16,6 +16,8 @@
       <option value="7">第7課</option>
     </select><br /><br />
     <button id="playAllButton" onclick="togglePlayAll()">通し再生</button><br /><br />
+    <input type="range" id="playbackSlider" min="0" max="0" value="0"
+      onchange="changePlaybackPosition(this.value)" style="width: 240px"><br /><br />
     <button onclick="playRandomSound()">再生</button>
     <button onclick="replaySound()">もう一度</button>
     <button onclick="markAsIncorrect()">間違った</button>
@@ -61,6 +63,11 @@
         updateCounters();
       }
 
+      function updateCounters() {
+        document.getElementById('playedCount').textContent = `再生した単語：${playedSounds.length} / ${allSounds.length}`;
+        document.getElementById('incorrectCount').textContent = `間違えた単語：${incorrectSounds.length}`;
+      }
+
       function playAllSounds() {
         if (allSounds.length === 0) {
           alert('再生する単語がありません');
@@ -77,6 +84,7 @@
             return;
           }
           playSound(allSounds[soundIndex]);
+          updateSlider();
         }, 3000);
       }
 
@@ -95,9 +103,18 @@
         }
       }
 
-      function updateCounters() {
-        document.getElementById('playedCount').textContent = `再生した単語：${playedSounds.length} / ${allSounds.length}`;
-        document.getElementById('incorrectCount').textContent = `間違えた単語：${incorrectSounds.length}`;
+      function changePlaybackPosition(value) {
+        soundIndex = parseInt(value);
+        if (playAllInterval) {
+          stopPlayingAll();
+          playAllSounds();
+        }
+      }
+
+      function updateSlider() {
+        const slider = document.getElementById('playbackSlider');
+        slider.max = allSounds.length - 1;
+        slider.value = soundIndex;
       }
 
       function playRandomSound() {
